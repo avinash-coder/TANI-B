@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="fallingrain.css">
+  <title>Happy Birthday!</title>
+</head>
+<body>
+  <audio id="birthday-music" src="Binks No Sake Violin.mp3"></audio>
+  <button onclick="playMusic()">Play Music</button>
+  <div class="rain-container">
+    <!-- Raindrops -->
+  </div>
+  <div class="container">
+    <h1>🎉 Happy Birthday, <span id="name">My Payesh</span>! 🎉</h1>
+    <h2>Today is all about you! 💖✨</h2>
+    <p>Tap below for a magical surprise!</p>
+    <button onclick="showSurprise()">Message for you!</button>
+    <button onclick="showPictures()">Memories</button>
+    <button onclick="showPoem()">Written for you</button>
+    <div id="surprise" style="display: none;">
+      <iframe id="birthday-video" width="560" height="315" src="https://www.youtube.com/embed/kkxoLcdkam0?autoplay=1" frameborder="0" allowfullscreen></iframe>
+    </div>
+    <div id="picture-container" style="display: none;">
+      <img id="picture" src="" alt="Birthday Pictures" width="320" height="240">
+    </div>
+    <div id="poem-container" style="display: none; margin-top: 20px; color: black;"></div>
+  </div>
+  <div class="owner">Created by:- Avinash with love</div>
+  <script>
+    function playMusic() {
+      var music = document.getElementById('birthday-music');
+      music.play();
+    }
+    function showSurprise() {
+      var surprise = document.getElementById('surprise');
+      surprise.style.display = 'block';
+    }
+    function showPictures() {
+      window.location.href = 'pictures.html';
+    }
+    function showPoem() {
+      var poem = 'When I got to know you, I got to know what true happiness is.\nWhen I got to touch you, I got to know what softness is.\nWhen I got to see you, I got to know what beauty is.\nWhen I got to hear you, I got to know what melody is.\nWhen I got to feel you, I felt the true essence of love.\nWhen I got to hold you, I felt like holding the most precious thing in the world.\nIn the end, it’s you. You who makes me feel complete,\nYou with whom I can live my life to the fullest,\nYou with whom I see the future, You with whom I want to grow old.\nYou are not just a simple girl. You are my beautiful mishti doi. And I love you.';
+      var words = poem.split(' ');
+      var index = 0;
+      var poemContainer = document.getElementById('poem-container');
+      poemContainer.style.display = 'block';
+      poemContainer.innerHTML = ''; // Clear previous content
+
+      function showNextWord() {
+        if (index < words.length) {
+          var wordSpan = document.createElement('span');
+          wordSpan.style.opacity = 0;
+          wordSpan.style.transition = 'opacity 1s';
+          wordSpan.innerText = words[index] + ' ';
+          poemContainer.appendChild(wordSpan);
+
+          setTimeout(function() {
+            wordSpan.style.opacity = 1;
+          }, 100);
+
+          index++;
+          setTimeout(showNextWord, 500); // Show next word every 500ms
+        }
+      }
+
+      showNextWord();
+    }
+  </script>
+</body>
+</html>

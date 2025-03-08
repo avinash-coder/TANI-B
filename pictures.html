@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Memories</title>
+  <style>
+    #gift-button {
+      position: absolute;
+      display: none;
+      z-index: 10; /* Ensure the button stays in front */
+      background-color: rgba(255, 255, 255, 0.9); /* Make it more visible */
+      border: 2px solid #000; /* Add a border for visibility */
+      padding: 10px 20px; /* Add some padding for better appearance */
+    }
+    #video-container {
+      margin-top: 100px; /* Adjust the value as needed */
+      display: flex;
+      justify-content: center;
+      position: relative;
+      z-index: 1; /* Ensure the video stays behind the button */
+    }
+    #start-button {
+      display: block;
+      margin: 20px auto; /* Center the button */
+      position: relative;
+    }
+  </style>
+  <script src="https://www.youtube.com/iframe_api"></script> <!-- Load YouTube IFrame API -->
+</head>
+<body>
+  <div id="video-container">
+    <div id="video"></div> <!-- Placeholder for YouTube player -->
+  </div>
+  <button id="start-button">Lets start</button>
+  <script>
+    var player;
+    var startButton = document.getElementById('start-button');
+    
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('video', {
+        width: '640',
+        height: '480',
+        videoId: 'GcwqEnHf4aU',
+        events: {
+          'onStateChange': onPlayerStateChange
+        }
+      });
+    }
+    
+    function onPlayerStateChange(event) {
+      if (event.data == YT.PlayerState.ENDED) {
+        showFinalMessage();
+      }
+    }
+
+    function startVideoAndMusic() {
+      player.playVideo();
+      startButton.style.display = 'none'; // Hide the button after starting
+    }
+
+    startButton.addEventListener('click', startVideoAndMusic);
+    
+    function showFinalMessage() {
+      var messageContainer = document.createElement('div');
+      messageContainer.style.textAlign = 'center';
+      document.body.appendChild(messageContainer);
+
+      var message = 'Thank you, please be in my life forever.';
+      var words = message.split(' ');
+      var index = 0;
+
+      function showNextWord() {
+        if (index < words.length) {
+          var wordSpan = document.createElement('span');
+          wordSpan.style.opacity = 0;
+          wordSpan.style.transition = 'opacity 1s';
+          wordSpan.innerText = words[index] + ' ';
+          messageContainer.appendChild(wordSpan);
+
+          setTimeout(function() {
+            wordSpan.style.opacity = 1;
+          }, 100);
+
+          index++;
+          setTimeout(showNextWord, 500); // Show next word every 500ms
+        } else {
+          showGiftButton();
+        }
+      }
+
+      showNextWord();
+    }
+
+    function showGiftButton() {
+      var giftButton = document.createElement('button');
+      giftButton.id = 'gift-button';
+      giftButton.innerText = 'Are you excited for your gift?';
+      giftButton.style.display = 'block';
+      document.body.appendChild(giftButton);
+
+      giftButton.addEventListener('mouseover', moveButton);
+      giftButton.addEventListener('click', function() {
+        alert('Why are you in such a hurry? Wait till 14th.');
+      });
+
+      setTimeout(function() {
+        giftButton.removeEventListener('mouseover', moveButton);
+      }, 15000); // Stop moving after 15 seconds
+    }
+
+    function moveButton() {
+      var giftButton = document.getElementById('gift-button');
+      var boundingBox = document.body.getBoundingClientRect();
+      var x = Math.random() * (boundingBox.width - giftButton.offsetWidth - 50) + 25; // Ensure it stays within the window
+      var y = Math.random() * (boundingBox.height - giftButton.offsetHeight - 50) + 25; // Ensure it stays within the window
+      giftButton.style.left = x + 'px';
+      giftButton.style.top = y + 'px';
+    }
+  </script>
+</body>
+</html>
