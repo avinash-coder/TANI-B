@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="styles.css">
   <title>Memories</title>
@@ -21,50 +21,175 @@
       position: relative;
       z-index: 1; /* Ensure the video stays behind the button */
     }
-    #start-button {
-      display: block;
+    #start-button, #quiz-container {
+      display: none;
       margin: 20px auto; /* Center the button */
       position: relative;
     }
+    #continue-button {
+      display: none;
+      margin: 20px auto;
+      position: relative;
+    }
+    .quiz-question {
+      text-align: center;
+      margin: 20px 0;
+      color: black; /* Change question color to black */
+      font-size: 24px; /* Increase font size for the question */
+    }
+    .quiz-options {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    .quiz-option {
+      cursor: pointer;
+      width: 200px; /* Increase width for the images */
+      height: auto; /* Maintain aspect ratio */
+    }
+    #video-player {
+      display: none; /* Hide the video player by default */
+      margin: 20px auto;
+    }
+    #message-container {
+      margin-top: 50px; /* Move the final message lower */
+      text-align: center;
+      font-size: 28px; /* Increase font size for the final message */
+    }
+    #points-container {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 24px; /* Increase font size for the points */
+      color: green; /* Change color to green */
+    }
   </style>
-  <script src="https://www.youtube.com/iframe_api"></script> <!-- Load YouTube IFrame API -->
 </head>
 <body>
-  <div id="video-container">
-    <div id="video"></div> <!-- Placeholder for YouTube player -->
+  <div id="quiz-container">
+    <div class="quiz-question">Question goes here</div>
+    <div class="quiz-options">
+      <img class="quiz-option" src="shoulder.jpg" alt="Option 1" onerror="handleImageError(this)">
+      <img class="quiz-option" src="chest.jpg" alt="Option 2" onerror="handleImageError(this)">
+    </div>
+    <div id="quiz-feedback" style="text-align:center; margin-top:10px;"></div>
   </div>
-  <button id="start-button">Lets start</button>
+  <div id="points-container" style="display: none;">Nimbooz Points: <span id="points">0</span></div>
+  <video id="video-player" controls>
+    <source src="" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+  <button id="start-button">Let's see what i have for you</button>
+  <button id="continue-button" onclick="showFinalMessage()">Continue</button>
   <script>
-    var player;
+    var quizContainer = document.getElementById('quiz-container');
+    var pointsContainer = document.getElementById('points-container');
+    var pointsElement = document.getElementById('points');
     var startButton = document.getElementById('start-button');
+    var continueButton = document.getElementById('continue-button');
+    var quizFeedback = document.getElementById('quiz-feedback');
+    var videoPlayer = document.getElementById('video-player');
+    var points = 0;
     
-    function onYouTubeIframeAPIReady() {
-      player = new YT.Player('video', {
-        width: '640',
-        height: '480',
-        videoId: 'GcwqEnHf4aU',
-        events: {
-          'onStateChange': onPlayerStateChange
-        }
+    var questions = [
+      {
+        question: 'Where we first met? Choose',
+        options: ['shoulder.jpg', 'chest.jpg'],
+        correctOption: 0,
+        correctVideo: 'me.mp4', // Add the path to the correct video
+        incorrectVideo: 'no.mp4' // Add the path to the incorrect video
+      },
+      {
+        question: 'Our first official date?',
+        options: ['lamour.jpeg', 'cafe.jpeg'],
+        correctOption: 1,
+        correctVideo: 'me.mp4', // Add the path to the correct video
+        incorrectVideo: 'no.mp4' // Add the path to the incorrect video
+      }
+      // Add more questions as needed
+    ];
+    var currentQuestionIndex = 0;
+
+    function showQuizQuestion() {
+      var question = questions[currentQuestionIndex];
+      quizContainer.querySelector('.quiz-question').innerText = question.question;
+      var quizOptions = quizContainer.querySelector('.quiz-options');
+      quizOptions.innerHTML = ''; // Clear previous options
+      question.options.forEach(function(option, index) {
+        var img = document.createElement('img');
+        img.classList.add('quiz-option');
+        img.src = option;
+        img.alt = 'Option ' + (index + 1);
+        img.addEventListener('click', function() {
+          checkAnswer(index);
+        });
+        quizOptions.appendChild(img);
       });
     }
-    
-    function onPlayerStateChange(event) {
-      if (event.data == YT.PlayerState.ENDED) {
-        showFinalMessage();
+
+    function checkAnswer(selectedIndex) {
+      var question = questions[currentQuestionIndex];
+      if (selectedIndex === question.correctOption) {
+        points += 1; // Add points for correct answer
+        pointsElement.innerText = points;
+        pointsContainer.style.display = 'block';
+        playVideo(question.correctVideo);
+      } else {
+        playVideo(question.incorrectVideo, true);
       }
     }
 
+    function playVideo(videoPath, isIncorrect = false) {
+      videoPlayer.src = videoPath;
+      videoPlayer.style.display = 'block';
+      videoPlayer.play();
+      if (isIncorrect) {
+        videoPlayer.addEventListener('ended', showTryAgain);
+      } else {
+        videoPlayer.addEventListener('ended', videoEnded);
+      }
+    }
+
+    function videoEnded() {
+      videoPlayer.style.display = 'none';
+      videoPlayer.removeEventListener('ended', videoEnded);
+      quizFeedback.innerText = '';
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        showQuizQuestion();
+      } else {
+        quizContainer.style.display = 'none';
+        startButton.style.display = 'block';
+      }
+    }
+
+    function showTryAgain() {
+      videoPlayer.style.display = 'none';
+      videoPlayer.removeEventListener('ended', showTryAgain);
+      quizFeedback.innerText = 'Try again!';
+    }
+
+    function handleImageError(img) {
+      console.error('Error loading image:', img.src);
+      quizFeedback.innerText = 'Error loading image. Please check the file path.';
+    }
+
+    window.addEventListener('load', function() {
+      quizContainer.style.display = 'block';
+      showQuizQuestion();
+    });
+
     function startVideoAndMusic() {
-      player.playVideo();
-      startButton.style.display = 'none'; // Hide the button after starting
+      window.open("https://youtu.be/pEkvj76t6mM", "_blank");
+      startButton.style.display = 'none'; // Hide the start button after starting
+      continueButton.style.display = 'block'; // Show the continue button
     }
 
     startButton.addEventListener('click', startVideoAndMusic);
     
     function showFinalMessage() {
+      continueButton.style.display = 'none'; // Hide the continue button
       var messageContainer = document.createElement('div');
-      messageContainer.style.textAlign = 'center';
+      messageContainer.id = 'message-container'; /* Add the ID for styling */
       document.body.appendChild(messageContainer);
 
       var message = 'Thank you, please be in my life forever.';
